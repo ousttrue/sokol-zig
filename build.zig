@@ -307,6 +307,7 @@ pub const EmLinkOptions = struct {
     // FIXME: this should be a LazyPath?
     shell_file_path: ?[]const u8 = null,
     extra_args: []const []const u8 = &.{},
+    extra_args2: []const []const u8 = &.{},
 };
 pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
     const emcc_path = b.findProgram(&.{"emcc"}, &.{}) catch emSdkLazyPath(b, options.emsdk, &.{ "upstream", "emscripten", "emcc" }).getPath(b);
@@ -367,6 +368,10 @@ pub fn emLinkStep(b: *Build, options: EmLinkOptions) !*Build.Step.InstallDir {
     }
     emcc.addArg("-o");
     const out_file = emcc.addOutputFileArg(b.fmt("{s}.html", .{options.lib_main.name}));
+
+    for (options.extra_args2) |arg| {
+        emcc.addArg(arg);
+    }
 
     // the emcc linker creates 3 output files (.html, .wasm and .js)
     const install = b.addInstallDirectory(.{
