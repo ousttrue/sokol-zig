@@ -195,7 +195,7 @@ pub fn buildLibSokol(b: *Build, options: LibSokolOptions) !*Build.Step.Compile {
     };
 
     // platform specific compile and link options
-    var cflags: []const []const u8 = &.{ "-DIMPL", backend_cflags };
+    var cflags: []const []const u8 = &.{ "-fPIC", "-DIMPL", backend_cflags };
     if (lib.rootModuleTarget().isDarwin()) {
         cflags = &.{ "-ObjC", "-DIMPL", backend_cflags };
         lib.linkFramework("Foundation");
@@ -394,7 +394,7 @@ pub const EmRunOptions = struct {
 };
 pub fn emRunStep(b: *Build, options: EmRunOptions) *Build.Step.Run {
     const emrun_path = b.findProgram(&.{"emrun"}, &.{}) catch emSdkLazyPath(b, options.emsdk, &.{ "upstream", "emscripten", "emrun" }).getPath(b);
-    const emrun = b.addSystemCommand(&.{ emrun_path, b.fmt("{s}/web/{s}.html", .{ b.install_path, options.name }) });
+    const emrun = b.addSystemCommand(&.{ emrun_path, "--no_browser", b.fmt("{s}/web/{s}.html", .{ b.install_path, options.name }) });
     return emrun;
 }
 
