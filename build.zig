@@ -209,6 +209,7 @@ pub fn buildLibSokol(b: *Build, options: LibSokolOptions) !*Build.Step.Compile {
     // resolve .auto backend into specific backend by platform
     var cflags = try std.BoundedArray([]const u8, 64).init(0);
     try cflags.append("-DIMPL");
+    try cflags.append("-fPIC");
     if (options.optimize != .Debug) {
         try cflags.append("-DNDEBUG");
     }
@@ -427,7 +428,7 @@ pub const EmRunOptions = struct {
 };
 pub fn emRunStep(b: *Build, options: EmRunOptions) *Build.Step.Run {
     const emrun_path = b.findProgram(&.{"emrun"}, &.{}) catch emSdkLazyPath(b, options.emsdk, &.{ "upstream", "emscripten", "emrun" }).getPath(b);
-    const emrun = b.addSystemCommand(&.{ emrun_path, b.fmt("{s}/web/{s}.html", .{ b.install_path, options.name }) });
+    const emrun = b.addSystemCommand(&.{ emrun_path, "--no_browser", b.fmt("{s}/web/{s}.html", .{ b.install_path, options.name }) });
     return emrun;
 }
 
